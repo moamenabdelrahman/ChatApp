@@ -28,7 +28,8 @@ namespace ChatApp
                             .AddEntityFrameworkStores<AppDbContext>();
 
             InfrastructureServices.Register((irepo, repo) => builder.Services.AddScoped(irepo, repo));
-            
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
             DomainServices.Register(type => builder.Services.AddScoped(type));
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 

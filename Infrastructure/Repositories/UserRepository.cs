@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using AutoMapper;
+using Domain.Entities;
 using Domain.IRepositories;
 using Domain.Requests;
 using Domain.Responses;
@@ -11,26 +12,26 @@ namespace Infrastructure.Repositories
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly IMapper _mapper;
 
         public UserRepository(UserManager<AppUser> userManager,
-                              SignInManager<AppUser> signInManager)
+                              SignInManager<AppUser> signInManager,
+                              IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _mapper = mapper;
         }
 
         public async Task<Result<User>> Create(RegisterRequest request)
         {
-            var appUser = new AppUser()
-            {
-                UserName = request.UserName,
-                Email = request.Email
-            };
+            var appUser = _mapper.Map<AppUser>(request);
+
             var result = await _userManager.CreateAsync(appUser, request.Password);
 
             if(result.Succeeded)
             {
-                var user = new User() { Id = appUser.Id, UserName = appUser.UserName, Email = appUser.Email };
+                var user = _mapper.Map<User>(appUser);
                 return Result<User>.Ok(user);
             }
 
