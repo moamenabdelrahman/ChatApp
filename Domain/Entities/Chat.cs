@@ -1,17 +1,17 @@
-﻿namespace Domain.Entities
+﻿using Domain.Enums;
+
+namespace Domain.Entities
 {
     public class Chat
     {
         public int Id { get; set; }
 
-        public ChatType ChatType { get; set; }
+        public string Name { get; set; }
 
-        public User Admin { get; set; }
-    }
+        public List<Message> Messages { get; set; }
 
-    public enum ChatType
-    {
-        Private = 0,
-        Group = 1
+        public List<User> Members { get; set; }
+
+        public ChatType Type { get; set; }
     }
 }

@@ -9,6 +9,15 @@ namespace Domain
             registerScoped(typeof(RegisterUseCase));
             registerScoped(typeof(LoginUseCase));
             registerScoped(typeof(LogoutUseCase));
+            
+            registerScoped(typeof(GetUserChatsUseCase));
+            
+            registerScoped(typeof(CreateGroupUseCase));
+            registerScoped(typeof(CreateOrGetChatUseCase));
+            registerScoped(typeof(GetChatMessagesUseCase));
+            registerScoped(typeof(JoinGroupUseCase));
+            registerScoped(typeof(LeaveGroupUseCase));
+            registerScoped(typeof(SendMessageUseCase));
         }
     }
 }

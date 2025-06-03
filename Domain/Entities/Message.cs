@@ -1,12 +1,12 @@
 ﻿namespace Domain.Entities
 {
-    public class ChatMessage
+    public class Message
     {
         public int Id { get; set; }
 
-        public Chat Chat { get; set; }
-
         public User Sender { get; set; }
+
+        public int ChatId { get; set; }
 
         public string Content { get; set; }
 

@@ -3,6 +3,7 @@ using Domain.Entities;
 using Domain.IRepositories;
 using Domain.Requests;
 using Domain.Responses;
+using Infrastructure.Data;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
 
@@ -36,6 +37,13 @@ namespace Infrastructure.Repositories
             }
 
             return Result<User>.Fail(result.Errors.Select(e => e.Description).ToList());
+        }
+
+        public async Task<User> GetUserByUserName(string userName)
+        {
+            var appUser = await _userManager.FindByNameAsync(userName);
+
+            return _mapper.Map<User>(appUser);
         }
 
         public async Task<Result> Login(LoginRequest request)

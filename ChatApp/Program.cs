@@ -4,6 +4,7 @@ using FluentValidation;
 using Infrastructure;
 using Infrastructure.Data;
 using Infrastructure.Identity;
+using Infrastructure.MapperProfiles;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,7 +29,7 @@ namespace ChatApp
                             .AddEntityFrameworkStores<AppDbContext>();
 
             InfrastructureServices.Register((irepo, repo) => builder.Services.AddScoped(irepo, repo));
-            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            builder.Services.AddAutoMapper(typeof(InfraMapperProfile).Assembly);
 
             DomainServices.Register(type => builder.Services.AddScoped(type));
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();

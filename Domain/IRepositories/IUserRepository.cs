@@ -6,6 +6,8 @@ namespace Domain.IRepositories
 {
     public interface IUserRepository
     {
+        public Task<User> GetUserByUserName(string userName);
+
         public Task<Result<User>> Create(RegisterRequest request);
 
         public Task<Result> Login(LoginRequest request);

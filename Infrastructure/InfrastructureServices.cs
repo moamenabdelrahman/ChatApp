@@ -8,6 +8,7 @@ namespace Infrastructure
         public static void Register(Action<Type, Type> registerScoped)
         {
             registerScoped(typeof(IUserRepository), typeof(UserRepository));
+            registerScoped(typeof(IChatRepository), typeof(ChatRepository));
         }
     }
 }
