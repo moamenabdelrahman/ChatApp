@@ -1,3 +1,4 @@
+using Api.SignalR;
 using Domain;
 using Domain.RequestsValidators;
 using FluentValidation;
@@ -34,6 +35,8 @@ namespace ChatApp
             DomainServices.Register(type => builder.Services.AddScoped(type));
             builder.Services.AddValidatorsFromAssemblyContaining<RegisterValidator>();
 
+            builder.Services.AddSignalR();
+
 
             var app = builder.Build();
 
@@ -45,6 +48,8 @@ namespace ChatApp
             app.UseAuthorization();
 
             app.MapControllers();
+
+            app.MapHub<ChatHub>("chat-hub");
 
             app.Run();
         }

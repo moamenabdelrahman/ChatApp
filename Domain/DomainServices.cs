@@ -18,6 +18,10 @@ namespace Domain
             registerScoped(typeof(JoinGroupUseCase));
             registerScoped(typeof(LeaveGroupUseCase));
             registerScoped(typeof(SendMessageUseCase));
+            registerScoped(typeof(GetChatMembersUseCase));
+            registerScoped(typeof(GetChatPreviewUseCase));
+            registerScoped(typeof(GetUserUseCase));
+            registerScoped(typeof(SearchUsersUseCase));
         }
     }
 }

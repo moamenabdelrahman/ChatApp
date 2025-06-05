@@ -69,14 +69,46 @@ namespace Infrastructure.Repositories
             return chat;
         }
 
+        public async Task<List<User>> GetChatMembers(Chat chat)
+        {
+            var chatEntity = await _appDbContext.Chats
+                                .Include(c => c.Members)
+                                .FirstAsync(c => c.Id == chat.Id).ConfigureAwait(false);
+
+            return _mapper.Map<List<User>>(chatEntity.Members);
+        }
+
         public async Task<List<Message>> GetChatMessages(Chat chat)
         {
             var messageEntities = await _appDbContext.Messages
+                                .Include(msg => msg.Sender)
                                 .Where(msg => msg.ChatId == chat.Id)
                                 .OrderBy(msg => msg.TimeStamp)
                                 .ToListAsync().ConfigureAwait(false);
 
             return _mapper.Map<List<Message>>(messageEntities);
+        }
+
+        public async Task<Chat> GetChatPreview(int chatId)
+        {
+            var chat = await _appDbContext.Chats
+                            .Include(c => c.Messages)
+                            .ThenInclude(msg => msg.Sender)
+                            .FirstOrDefaultAsync(c => c.Id == chatId)
+                            .ConfigureAwait(false);
+
+            if (chat is null)
+                return null;
+
+            chat = new ChatEntity
+            {
+                Id = chat.Id,
+                Name = chat.Name,
+                Messages = chat.Messages.OrderByDescending(msg => msg.TimeStamp).Take(1).ToList(),
+                Type = chat.Type
+            };
+
+            return _mapper.Map<Chat>(chat);
         }
 
         public async Task<Chat> GetPrivateChat(User user1, User user2)
@@ -99,7 +131,7 @@ namespace Infrastructure.Repositories
                             .Include(c => c.Members)
                             .Include(c => c.Messages)
                             .ThenInclude(msg => msg.Sender)
-                            .Where(c => c.Members.Any(m => m.Id == user.Id) && c.Messages.Any())
+                            .Where(c => c.Members.Any(m => m.Id == user.Id))
                             .ToListAsync().ConfigureAwait(false);
 
             chats = chats.Select(c => new ChatEntity
@@ -142,7 +174,7 @@ namespace Infrastructure.Repositories
             return Result.Fail();
         }
 
-        public async Task<Result> SendMessage(Message message)
+        public async Task<Result<Message>> SendMessage(Message message)
         {
             var messageEntity = _mapper.Map<MessageEntity>(message);
 
@@ -153,9 +185,9 @@ namespace Infrastructure.Repositories
             var result = await _appDbContext.SaveChangesAsync();
 
             if (result > 0)
-                return Result.Ok();
+                return Result<Message>.Ok(_mapper.Map<Message>(messageEntity));
 
-            return Result.Fail();
+            return Result<Message>.Fail();
         }
     }
 }

@@ -13,5 +13,7 @@ namespace Domain.IRepositories
         public Task<Result> Login(LoginRequest request);
 
         public Task<Result> Logout();
+
+        public Task<List<User>> Search(string text);
     }
 }

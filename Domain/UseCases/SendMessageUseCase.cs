@@ -21,21 +21,21 @@ namespace Domain.UseCases
             _validator = validator;
         }
 
-        public async Task<Result> Handle(SendMessageRequest request)
+        public async Task<Result<Message>> Handle(SendMessageRequest request)
         {
             var validation = _validator.Validate(request);
 
             if (!validation.IsValid)
-                return Result.Fail(validation.Errors.Select(e => e.ErrorMessage).ToList());
+                return Result<Message>.Fail(validation.Errors.Select(e => e.ErrorMessage).ToList());
 
             var user = await _userRepository.GetUserByUserName(request.SenderUserName);
             var chat = await _chatRepository.GetChatById(request.ChatId);
 
             if (user is null || chat is null)
-                return Result.Fail("Some of the provided entities aren't found!");
+                return Result<Message>.Fail("Some of the provided entities aren't found!");
 
             if (!(await _chatRepository.IsInChat(user, chat)))
-                return Result.Fail("You aren't a member of this chat!");
+                return Result<Message>.Fail("You aren't a member of this chat!");
 
             var message = new Message()
             {

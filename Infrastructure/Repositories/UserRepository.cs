@@ -6,6 +6,7 @@ using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
@@ -13,14 +14,17 @@ namespace Infrastructure.Repositories
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _signInManager;
+        private readonly AppDbContext _appDbContext;
         private readonly IMapper _mapper;
 
         public UserRepository(UserManager<AppUser> userManager,
                               SignInManager<AppUser> signInManager,
+                              AppDbContext appDbContext,
                               IMapper mapper)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _appDbContext = appDbContext;
             _mapper = mapper;
         }
 
@@ -57,6 +61,16 @@ namespace Infrastructure.Repositories
         {
             await _signInManager.SignOutAsync();
             return Result.Ok();
+        }
+
+        public async Task<List<User>> Search(string text)
+        {
+            text = text.ToUpper();
+            var userEntities = await _appDbContext.Users
+                                    .Where(u => u.NormalizedUserName.Contains(text))
+                                    .ToListAsync().ConfigureAwait(false);
+
+            return _mapper.Map<List<User>>(userEntities);
         }
     }
 }

@@ -7,6 +7,8 @@ namespace Domain.IRepositories
     {
         public Task<List<Chat>> GetUserChatsPreview(User user);
 
+        public Task<Chat> GetChatPreview(int chatId);
+
         public Task<Result<Chat>> CreateChat(Chat chat);
 
         public Task<Chat> GetPrivateChat(User user1, User user2);
@@ -21,6 +23,8 @@ namespace Domain.IRepositories
 
         public Task<Result> RemoveFromGroup(User user, Chat chat);
 
-        public Task<Result> SendMessage(Message message);
+        public Task<Result<Message>> SendMessage(Message message);
+
+        public Task<List<User>> GetChatMembers(Chat chat);
     }
 }
