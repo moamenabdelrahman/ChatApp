@@ -16,8 +16,7 @@ namespace Api.Controllers
             _searchUsersUseCase = searchUsersUseCase;
         }
 
-        [Route("search")]
-        [HttpGet]
+        [HttpGet("search")]
         public async Task<ActionResult> Search(string searchTerm)
         {
             searchTerm = searchTerm ?? "";
