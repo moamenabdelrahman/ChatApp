@@ -54,7 +54,9 @@ namespace Infrastructure.Repositories
         {
             var result = await _signInManager.PasswordSignInAsync(request.UserName, request.Password, request.RememberMe, false);
 
-            return result.Succeeded? Result.Ok() : Result.Fail();
+            return result.Succeeded ?
+                Result.Ok() :
+                Result.Fail(result.IsNotAllowed ? "Email isn't confirmed!" : "Wrong Credentials!");
         }
 
         public async Task<Result> Logout()
