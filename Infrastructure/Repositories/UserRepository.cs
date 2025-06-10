@@ -65,6 +65,18 @@ namespace Infrastructure.Repositories
             return Result.Ok();
         }
 
+        public async Task<Result> ResetPassword(User user, string token, string newPassword)
+        {
+            var appUser = await _userManager.FindByNameAsync(user.UserName);
+
+            var result = await _userManager.ResetPasswordAsync(appUser, token, newPassword);
+
+            if (result.Succeeded)
+                return Result.Ok();
+
+            return Result.Fail(result.Errors.Select(x => x.Description).ToList());
+        }
+
         public async Task<List<User>> Search(string text)
         {
             text = text.ToUpper();

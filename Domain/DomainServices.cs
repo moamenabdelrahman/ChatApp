@@ -22,6 +22,7 @@ namespace Domain
             registerScoped(typeof(GetChatPreviewUseCase));
             registerScoped(typeof(GetUserUseCase));
             registerScoped(typeof(SearchUsersUseCase));
+            registerScoped(typeof(ResetPasswordUseCase));
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using Domain.Requests;
+using Domain.Responses;
 using Domain.UseCases;
-using Infrastructure;
 using Infrastructure.Identity;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Security.Claims;
 
@@ -20,13 +22,15 @@ namespace Api.Controllers
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
         private readonly EmailService _emailService;
+        private readonly ResetPasswordUseCase _resetPasswordUseCase;
 
         public AccountController(RegisterUseCase registerUseCase,
                                  LoginUseCase loginUseCase,
                                  LogoutUseCase logoutUseCase,
                                  SignInManager<AppUser> signInManager,
                                  UserManager<AppUser> userManager,
-                                 EmailService emailService)
+                                 EmailService emailService,
+                                 ResetPasswordUseCase resetPasswordUseCase)
         {
             _registerUseCase = registerUseCase;
             _loginUseCase = loginUseCase;
@@ -34,6 +38,7 @@ namespace Api.Controllers
             _signInManager = signInManager;
             _userManager = userManager;
             _emailService = emailService;
+            _resetPasswordUseCase = resetPasswordUseCase;
         }
 
         [HttpPost]
@@ -70,6 +75,17 @@ namespace Api.Controllers
         }
 
         [HttpPost]
+        public async Task<ActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            var result = await _resetPasswordUseCase.Handle(request);
+
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        [HttpPost]
         public async Task<ActionResult> Login(LoginRequest request)
         {
             var result = await _loginUseCase.Handle(request);
@@ -84,7 +100,7 @@ namespace Api.Controllers
                                 .Select(x => x.Name).ToList();
 
             if (!providers.Contains(provider))
-                return String.IsNullOrEmpty(failureReturnUrl) ? Content("Invalid Provider!") : Redirect(failureReturnUrl);
+                return BadRequest(Result.Fail("Invalid provider!"));
 
             var callBackUrl = Url.Action(action: "ExternalLoginCallBack",
                                          controller: "Account",
@@ -138,6 +154,28 @@ namespace Api.Controllers
         {
             var result = await _logoutUseCase.Handle();
             return Ok(result);
+        }
+
+        [HttpGet]
+        public async Task<ActionResult> SendForgotPasswordEmail(string userName, string changePasswordUrl)
+        {
+            var appUser = await _userManager.FindByNameAsync(userName);
+
+            if (appUser is null)
+                return BadRequest(Result.Fail("User isn't found!"));
+
+            if (changePasswordUrl.IsNullOrEmpty())
+                return BadRequest(Result.Fail("Change Password Page Url can't be empty!"));
+
+            var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);
+
+            var url = changePasswordUrl + $"?Token={token}";
+
+            await _emailService.SendEmailAsync(appUser.Email,
+                                               "ChatApp - Reset Password",
+                                               $"Click here to reset password: {url}").ConfigureAwait(false);
+
+            return Ok(Result.Ok());
         }
 
         private async Task SendEmailConfirmation(AppUser appUser, string loginUrl)

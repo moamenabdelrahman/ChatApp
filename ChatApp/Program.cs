@@ -6,6 +6,7 @@ using Infrastructure;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Infrastructure.MapperProfiles;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
