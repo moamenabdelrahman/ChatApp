@@ -9,6 +9,9 @@ using Infrastructure.MapperProfiles;
 using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ChatApp
 {
@@ -28,24 +31,59 @@ namespace ChatApp
             });
 
             builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
-            {
-                options.SignIn.RequireConfirmedEmail = true;
-            })
-                            .AddEntityFrameworkStores<AppDbContext>()
-                            .AddDefaultTokenProviders();
+                {
+                    options.SignIn.RequireConfirmedEmail = true;
+                })
+                .AddEntityFrameworkStores<AppDbContext>();
 
-            builder.Services.AddAuthentication()
-            .AddGoogle(options =>
-            {
-                options.ClientId = builder.Configuration.GetSection("GoogleAuth")["ClientID"];
-                options.ClientSecret = builder.Configuration.GetSection("GoogleAuth")["ClientSecret"];
-                options.CallbackPath = "/signin-google";
-            });
+            builder.Services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = false;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                        ValidAudience = builder.Configuration["Jwt:Audience"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:SecretKey"]))
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            if (!String.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chat-hub"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                })
+                .AddGoogle(options =>
+                {
+                    options.ClientId = builder.Configuration.GetSection("GoogleAuth")["ClientID"];
+                    options.ClientSecret = builder.Configuration.GetSection("GoogleAuth")["ClientSecret"];
+                    options.CallbackPath = "/signin-google";
+                });
 
 
             InfrastructureServices.Register((irepo, repo) => builder.Services.AddScoped(irepo, repo));
             builder.Services.AddAutoMapper(typeof(InfraMapperProfile).Assembly);
             builder.Services.AddScoped<EmailService>();
+            builder.Services.AddScoped<TokenProvider>();
 
 
             DomainServices.Register(type => builder.Services.AddScoped(type));

@@ -10,7 +10,7 @@ namespace Domain.IRepositories
 
         public Task<Result<User>> Create(RegisterRequest request);
 
-        public Task<Result> Login(LoginRequest request);
+        public Task<Result<string>> Login(LoginRequest request);
 
         public Task<Result> Logout();
 

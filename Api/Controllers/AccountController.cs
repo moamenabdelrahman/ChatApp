@@ -6,7 +6,6 @@ using Infrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.Data;
 using System.Security.Claims;
 
@@ -164,7 +163,7 @@ namespace Api.Controllers
             if (appUser is null)
                 return BadRequest(Result.Fail("User isn't found!"));
 
-            if (changePasswordUrl.IsNullOrEmpty())
+            if (String.IsNullOrEmpty(changePasswordUrl))
                 return BadRequest(Result.Fail("Change Password Page Url can't be empty!"));
 
             var token = await _userManager.GeneratePasswordResetTokenAsync(appUser);

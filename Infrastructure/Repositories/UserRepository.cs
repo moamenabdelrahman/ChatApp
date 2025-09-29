@@ -5,6 +5,7 @@ using Domain.Requests;
 using Domain.Responses;
 using Infrastructure.Data;
 using Infrastructure.Identity;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,16 +17,19 @@ namespace Infrastructure.Repositories
         private readonly SignInManager<AppUser> _signInManager;
         private readonly AppDbContext _appDbContext;
         private readonly IMapper _mapper;
+        private readonly TokenProvider _tokenProvider;
 
         public UserRepository(UserManager<AppUser> userManager,
                               SignInManager<AppUser> signInManager,
                               AppDbContext appDbContext,
-                              IMapper mapper)
+                              IMapper mapper,
+                              TokenProvider tokenProvider)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _appDbContext = appDbContext;
             _mapper = mapper;
+            this._tokenProvider = tokenProvider;
         }
 
         public async Task<Result<User>> Create(RegisterRequest request)
@@ -50,13 +54,19 @@ namespace Infrastructure.Repositories
             return _mapper.Map<User>(appUser);
         }
 
-        public async Task<Result> Login(LoginRequest request)
+        public async Task<Result<string>> Login(LoginRequest request)
         {
-            var result = await _signInManager.PasswordSignInAsync(request.UserName, request.Password, request.RememberMe, false);
+            var appUser = await _userManager.FindByNameAsync(request.UserName);
 
-            return result.Succeeded ?
-                Result.Ok() :
-                Result.Fail(result.IsNotAllowed ? "Email isn't confirmed!" : "Wrong Credentials!");
+            if(appUser is null)
+                return Result<string>.Fail("Wrong Credentials!");
+            if (! await _signInManager.CanSignInAsync(appUser))
+                return Result<string>.Fail("Email isn't confirmed!");
+            if(! await _userManager.CheckPasswordAsync(appUser, request.Password))
+                return Result<string>.Fail("Wrong Credentials!");
+
+            var token = _tokenProvider.CreateToken(appUser);
+            return Result<string>.Ok(token);
         }
 
         public async Task<Result> Logout()
