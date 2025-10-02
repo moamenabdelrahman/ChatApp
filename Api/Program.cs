@@ -34,7 +34,8 @@ namespace ChatApp
                 {
                     options.SignIn.RequireConfirmedEmail = true;
                 })
-                .AddEntityFrameworkStores<AppDbContext>();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
 
             builder.Services.AddAuthentication(options =>
                 {
@@ -97,7 +98,7 @@ namespace ChatApp
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("http://127.0.0.1:5500")
+                        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5173")
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();
