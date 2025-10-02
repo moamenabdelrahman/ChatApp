@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Api.DTOs;
+using Domain.Entities;
 using Domain.Requests;
 using Domain.Responses;
 using Domain.UseCases;
@@ -59,6 +60,7 @@ namespace Api.SignalR
             _userConnectionIds[username].Add(connectionId);
 
             var chats = (await _getUserChatsUseCase.Handle(username)).Data;
+            var chatsDto = chats.Select(chat => new ChatPreviewDTO(chat)).ToList();
 
             foreach(var chat in chats)
             {
@@ -66,7 +68,7 @@ namespace Api.SignalR
                 _groups.Add($"chat-{chat.Id}");
             }
 
-            await Clients.Caller.RecieveChatList(chats);
+            await Clients.Caller.RecieveChatList(chatsDto);
         }
 
         public async Task<Result<List<Message>>> GetChatMessages(int chatId)
@@ -111,9 +113,10 @@ namespace Api.SignalR
                 return result;
 
             var chatPreview = (await _getChatPreviewUseCase.Handle(chatId)).Data;
+            var chatPreviewDto = new ChatPreviewDTO(chatPreview);
 
             await Clients.Group($"chat-{chatId}").RecieveMessage(chatId, result.Data);
-            await Clients.Group($"chat-{chatId}").RecieveChatPreview(chatPreview);
+            await Clients.Group($"chat-{chatId}").RecieveChatPreview(chatPreviewDto);
 
             return result;
         }
@@ -139,7 +142,8 @@ namespace Api.SignalR
                     await Groups.AddToGroupAsync(connectionId, $"chat-{chat.Id}");
 
                 var newChat = (await _getChatPreviewUseCase.Handle(chat.Id)).Data;
-                await Clients.Group($"chat-{chat.Id}").RecieveChatPreview(newChat);
+                var newChatPreviewDto = new ChatPreviewDTO(newChat);
+                await Clients.Group($"chat-{chat.Id}").RecieveChatPreview(newChatPreviewDto);
             }
 
             var request = new SendMessageRequest()
@@ -153,8 +157,9 @@ namespace Api.SignalR
             var messageModel = (await _sendMessageUseCase.Handle(request)).Data;
 
             var chatPreview = (await _getChatPreviewUseCase.Handle(chat.Id)).Data;
+            var chatPreviewDto = new ChatPreviewDTO(chatPreview);
 
-            await Clients.Group($"chat-{chat.Id}").RecieveChatPreview(chatPreview);
+            await Clients.Group($"chat-{chat.Id}").RecieveChatPreview(chatPreviewDto);
             await Clients.Group($"chat-{chat.Id}").RecieveMessage(chat.Id, messageModel);
 
             return Result<Chat>.Ok(chatPreview);
@@ -178,6 +183,7 @@ namespace Api.SignalR
                 return result;
 
             var newChat = result.Data;
+            var chatPreviewDto = new ChatPreviewDTO(newChat);
 
             _groups.Add($"chat-{newChat.Id}");
 
@@ -189,7 +195,7 @@ namespace Api.SignalR
                 }
             }
 
-            await Clients.Group($"chat-{newChat.Id}").RecieveChatPreview(newChat);
+            await Clients.Group($"chat-{newChat.Id}").RecieveChatPreview(chatPreviewDto);
 
             return result;
         }
