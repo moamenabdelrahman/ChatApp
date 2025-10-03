@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.DTOs;
+using Domain.Entities;
 using Domain.Requests;
 using Domain.Responses;
 
@@ -10,7 +11,7 @@ namespace Domain.IRepositories
 
         public Task<Result<User>> Create(RegisterRequest request);
 
-        public Task<Result<string>> Login(LoginRequest request);
+        public Task<Result<LoginDTO>> Login(LoginRequest request);
 
         public Task<Result> Logout();
 

@@ -1,4 +1,5 @@
-﻿using Domain.IRepositories;
+﻿using Domain.DTOs;
+using Domain.IRepositories;
 using Domain.Requests;
 using Domain.RequestsValidators;
 using Domain.Responses;
@@ -16,12 +17,12 @@ namespace Domain.UseCases
             _validator = validator;
         }
 
-        public async Task<Result<string>> Handle(LoginRequest request)
+        public async Task<Result<LoginDTO>> Handle(LoginRequest request)
         {
             var result = await _validator.ValidateAsync(request);
 
             if (!result.IsValid)
-                return Result<string>.Fail(result.Errors.Select(x => x.ErrorMessage).ToList());
+                return Result<LoginDTO>.Fail(result.Errors.Select(x => x.ErrorMessage).ToList());
 
             return await _userRepository.Login(request);
         }

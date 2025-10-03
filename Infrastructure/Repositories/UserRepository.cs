@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.DTOs;
 using Domain.Entities;
 using Domain.IRepositories;
 using Domain.Requests;
@@ -54,19 +55,26 @@ namespace Infrastructure.Repositories
             return _mapper.Map<User>(appUser);
         }
 
-        public async Task<Result<string>> Login(LoginRequest request)
+        public async Task<Result<LoginDTO>> Login(LoginRequest request)
         {
             var appUser = await _userManager.FindByNameAsync(request.UserName);
 
             if(appUser is null)
-                return Result<string>.Fail("Wrong Credentials!");
+                return Result<LoginDTO>.Fail("Wrong Credentials!");
             if (! await _signInManager.CanSignInAsync(appUser))
-                return Result<string>.Fail("Email isn't confirmed!");
+                return Result<LoginDTO>.Fail("Email isn't confirmed!");
             if(! await _userManager.CheckPasswordAsync(appUser, request.Password))
-                return Result<string>.Fail("Wrong Credentials!");
+                return Result<LoginDTO>.Fail("Wrong Credentials!");
 
             var token = _tokenProvider.CreateToken(appUser);
-            return Result<string>.Ok(token);
+            var loginDto = new LoginDTO
+            {
+                Id = appUser.Id,
+                Email = appUser.Email,
+                UserName = appUser.UserName,
+                AccessToken = token
+            };
+            return Result<LoginDTO>.Ok(loginDto);
         }
 
         public async Task<Result> Logout()
