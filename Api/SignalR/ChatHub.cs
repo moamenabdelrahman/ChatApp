@@ -60,15 +60,23 @@ namespace Api.SignalR
             _userConnectionIds[username].Add(connectionId);
 
             var chats = (await _getUserChatsUseCase.Handle(username)).Data;
-            var chatsDto = chats.Select(chat => new ChatPreviewDTO(chat)).ToList();
 
             foreach(var chat in chats)
             {
                 await Groups.AddToGroupAsync(connectionId, $"chat-{chat.Id}");
                 _groups.Add($"chat-{chat.Id}");
             }
+        }
 
-            await Clients.Caller.RecieveChatList(chatsDto);
+        public async Task<Result<List<ChatPreviewDTO>>> GetChatList()
+        {
+            string username = Context.User.Identity.Name;
+            string connectionId = Context.ConnectionId;
+
+            var chats = (await _getUserChatsUseCase.Handle(username)).Data;
+            var chatsDto = chats.Select(chat => new ChatPreviewDTO(chat)).ToList();
+
+            return Result<List<ChatPreviewDTO>>.Ok(chatsDto);
         }
 
         public async Task<Result<List<Message>>> GetChatMessages(int chatId)

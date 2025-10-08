@@ -5,8 +5,6 @@ namespace Api.SignalR
 {
     public interface IChatClient
     {
-        public Task RecieveChatList(List<ChatPreviewDTO> chats); // used
-
         public Task MemberLeft(int chatId, User member); // used
 
         public Task MemberJoined(int chatId, User member); // used
