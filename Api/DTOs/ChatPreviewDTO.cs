@@ -9,7 +9,7 @@ namespace Api.DTOs
 
         public string Name { get; set; }
 
-        public ChatType Type { get; set; }
+        public string Type { get; set; }
         
         public Message LastMessage { get; set; }
 
@@ -17,7 +17,7 @@ namespace Api.DTOs
         {
             this.Id = chat.Id;
             this.Name = chat.Name;
-            this.Type = chat.Type;
+            this.Type = chat.Type.ToString();
             this.LastMessage = chat.Messages.FirstOrDefault();
         }
     }
