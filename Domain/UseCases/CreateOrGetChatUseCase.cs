@@ -33,6 +33,7 @@ namespace Domain.UseCases
             {
                 var result = await _chatRepository.CreateChat(new Chat()
                 {
+                    Name = $"{userName1}|{userName2}",
                     Type = Enums.ChatType.Private,
                     Members = new List<User>() { user1, user2 }
                 }).ConfigureAwait(false);

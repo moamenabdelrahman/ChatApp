@@ -25,6 +25,7 @@ namespace Api.SignalR
         private readonly JoinGroupUseCase _joinGroupUseCase;
         private readonly GetUserUseCase _getUserUseCase;
         private readonly LeaveGroupUseCase _leaveGroupUseCase;
+        private readonly GetPrivateChatIdWithUseCase _getPrivateChatIdWithUseCase;
 
         public ChatHub(GetUserChatsUseCase getUserChatsUseCase,
                        GetChatMessagesUseCase getChatMessagesUseCase,
@@ -35,7 +36,8 @@ namespace Api.SignalR
                        CreateGroupUseCase createGroupUseCase,
                        JoinGroupUseCase joinGroupUseCase,
                        GetUserUseCase getUserUseCase,
-                       LeaveGroupUseCase leaveGroupUseCase)
+                       LeaveGroupUseCase leaveGroupUseCase,
+                       GetPrivateChatIdWithUseCase getPrivateChatIdWithUseCase)
         {
             _getUserChatsUseCase = getUserChatsUseCase;
             _getChatMessagesUseCase = getChatMessagesUseCase;
@@ -47,6 +49,7 @@ namespace Api.SignalR
             _joinGroupUseCase = joinGroupUseCase;
             _getUserUseCase = getUserUseCase;
             _leaveGroupUseCase = leaveGroupUseCase;
+            _getPrivateChatIdWithUseCase = getPrivateChatIdWithUseCase;
         }
 
         public async override Task OnConnectedAsync()
@@ -91,6 +94,11 @@ namespace Api.SignalR
             var result = await _getChatMembersUseCase.Handle(Context.User.Identity.Name, chatId);
 
             return result;
+        }
+
+        public async Task<Result<int>> GetPrivateChatId(string otherUsername)
+        {
+            return await _getPrivateChatIdWithUseCase.Handle(Context.User.Identity.Name, otherUsername);
         }
 
         public async override Task OnDisconnectedAsync(Exception exception)

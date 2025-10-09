@@ -7,7 +7,9 @@ namespace Domain.RequestsValidators
     {
         public RegisterValidator()
         {
-            RuleFor(x => x.UserName).NotEmpty();
+            RuleFor(x => x.UserName).NotEmpty()
+                                    .Must(username => !username.Contains("|"))
+                                    .WithMessage("Username cannot contain the '|' character.");
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty();
             RuleFor(x => x.ConfirmPassword).Equal(x => x.Password).WithMessage("Passwords don't match!");
