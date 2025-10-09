@@ -83,7 +83,7 @@ namespace Infrastructure.Repositories
             var messageEntities = await _appDbContext.Messages
                                 .Include(msg => msg.Sender)
                                 .Where(msg => msg.ChatId == chat.Id)
-                                .OrderBy(msg => msg.TimeStamp)
+                                .OrderByDescending(msg => msg.TimeStamp)
                                 .ToListAsync().ConfigureAwait(false);
 
             return _mapper.Map<List<Message>>(messageEntities);
