@@ -95,11 +95,12 @@ namespace Infrastructure.Repositories
             return Result.Fail(result.Errors.Select(x => x.Description).ToList());
         }
 
-        public async Task<List<User>> Search(string text)
+        public async Task<List<User>> Search(string text, string currentUsername)
         {
             text = text.ToUpper();
+            currentUsername = currentUsername.ToUpper();
             var userEntities = await _appDbContext.Users
-                                    .Where(u => u.NormalizedUserName.Contains(text))
+                                    .Where(u => u.NormalizedUserName.Contains(text) && u.NormalizedUserName != currentUsername)
                                     .ToListAsync().ConfigureAwait(false);
 
             return _mapper.Map<List<User>>(userEntities);

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities;
 using Domain.Responses;
 using Domain.UseCases;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Api.Controllers
@@ -16,12 +17,13 @@ namespace Api.Controllers
             _searchUsersUseCase = searchUsersUseCase;
         }
 
+        [Authorize]
         [HttpGet("search")]
         public async Task<ActionResult> Search(string searchTerm)
         {
             searchTerm = searchTerm ?? "";
 
-            var users = await _searchUsersUseCase.Handle(searchTerm);
+            var users = await _searchUsersUseCase.Handle(searchTerm, User.Identity.Name);
 
             var result = Result<List<User>>.Ok(users);
             

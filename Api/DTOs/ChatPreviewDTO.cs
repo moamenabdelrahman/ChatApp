@@ -18,7 +18,7 @@ namespace Api.DTOs
             this.Id = chat.Id;
             this.Name = chat.Name;
             this.Type = chat.Type.ToString();
-            this.LastMessage = chat.Messages.FirstOrDefault();
+            this.LastMessage = chat.Messages?.FirstOrDefault();
         }
     }
 }

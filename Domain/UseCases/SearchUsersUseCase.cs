@@ -12,9 +12,9 @@ namespace Domain.UseCases
             _userRepository = userRepository;
         }
 
-        public async Task<List<User>> Handle(string text)
+        public async Task<List<User>> Handle(string text, string currentUsername)
         {
-            var users = await _userRepository.Search(text);
+            var users = await _userRepository.Search(text, currentUsername);
             
             return users;
         }

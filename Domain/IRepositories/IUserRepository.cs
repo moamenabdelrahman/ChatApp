@@ -15,7 +15,7 @@ namespace Domain.IRepositories
 
         public Task<Result> Logout();
 
-        public Task<List<User>> Search(string text);
+        public Task<List<User>> Search(string text, string currentUsername);
 
         public Task<Result> ResetPassword(User user, string token, string newPassword);
     }
