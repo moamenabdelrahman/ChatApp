@@ -27,7 +27,7 @@ namespace ChatApp
 
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("default"));
+                options.UseSqlServer(builder.Configuration["ConnectionStrings:default"]);
             });
 
             builder.Services.AddIdentity<AppUser, IdentityRole<int>>(options =>
@@ -75,8 +75,8 @@ namespace ChatApp
                 })
                 .AddGoogle(options =>
                 {
-                    options.ClientId = builder.Configuration.GetSection("GoogleAuth")["ClientID"];
-                    options.ClientSecret = builder.Configuration.GetSection("GoogleAuth")["ClientSecret"];
+                    options.ClientId = builder.Configuration["GoogleAuth:ClientID"];
+                    options.ClientSecret = builder.Configuration["GoogleAuth:ClientSecret"];
                     options.CallbackPath = "/signin-google";
                 });
 
@@ -93,12 +93,15 @@ namespace ChatApp
 
             builder.Services.AddSignalR();
 
+            var allowedOrigins = builder.Configuration
+                                        .GetSection("Cors:AllowedOrigins")
+                                        .Get<string[]>();
             builder.Services.AddCors(options =>
             {
                 options.AddDefaultPolicy(
                     builder =>
                     {
-                        builder.WithOrigins("http://127.0.0.1:5500", "http://localhost:5173")
+                        builder.WithOrigins(allowedOrigins)
                                .AllowAnyHeader()
                                .AllowAnyMethod()
                                .AllowCredentials();

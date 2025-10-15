@@ -12,11 +12,11 @@ namespace Infrastructure.Services
 
         public EmailService(IConfiguration configuration)
         {
-            string mailServer = configuration.GetSection("Email")["MailServer"];
-            int port = Convert.ToInt32(configuration.GetSection("Email")["MailPort"]);
-            string fromEmail = configuration.GetSection("Email")["FromEmail"];
-            string password = configuration.GetSection("Email")["Password"];
-            string senderName = configuration.GetSection("Email")["SenderName"];
+            string mailServer = configuration["Email:MailServer"];
+            int port = Convert.ToInt32(configuration["Email:MailPort"]);
+            string fromEmail = configuration["Email:FromEmail"];
+            string password = configuration["Email:Password"];
+            string senderName = configuration["Email:SenderName"];
 
             Client = new SmtpClient(mailServer, port)
             {
