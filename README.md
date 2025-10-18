@@ -2,6 +2,9 @@
 
 A real-time chat application built with **ASP.NET Core**, **SignalR**, and **Clean Architecture** principles. This project supports private and group messaging, user authentication, and external login with Google.
 
+This is the **backend** part of the project. You can find the frontend repository here:  
+👉 [Pingy Repository](https://github.com/moamenabdelrahman/Pingy)
+
 ---
 
 ## 🚀 Features
@@ -18,7 +21,7 @@ A real-time chat application built with **ASP.NET Core**, **SignalR**, and **Cle
 ## 🧠 Tech Stack
 
 - **Backend:** ASP.NET Core, SignalR
-- **Authentication:** ASP.NET Identity, Google OAuth
+- **Authentication:** ASP.NET Identity, JWT Tokens, Google OAuth
 - **Architecture:** Clean Architecture (Domain ➝ Infrastructure ➝ API)
 - **Database:** SQL Server (via Entity Framework Core)
 - **Real-time:** SignalR with WebSockets
